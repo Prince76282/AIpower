@@ -110,3 +110,25 @@ module.exports = {
   getUser,
   deleteUser
 };
+
+
+// const User = require('../models/Userdata');
+// const path = require('path');
+
+// exports.createUser = async (req, res) => {
+//   try {
+//     const { name, age, email, education, reason } = req.body;
+//     const profileImage = req.file ? path.join('uploads', req.file.filename) : null;
+
+//     const user = await User.create({ name, age, email, education, reason, profileImage });
+//     res.status(201).json({ message: 'User saved', user });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Failed to save user' });
+//   }
+// };
+
+// exports.getAllUsers = async (req, res) => {
+//   const users = await User.find();
+//   res.json(users);
+// };

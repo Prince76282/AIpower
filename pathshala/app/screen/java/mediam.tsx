@@ -42,12 +42,12 @@ const ProductNameCreator = () => {
 
   const features: Feature[] = [
     {
-      name: "Print",
+      name: "funce",
       description: "Learn basic print statements",
-      status: completedFeatures.includes("Print") ? "completed" : "unlocked",
+      status: completedFeatures.includes("Print") ? "unlocked" : "locked",
     },
     {
-      name: "Strings",
+      name: "hsddjsd",
       description: "Advanced string manipulation",
       status: completedFeatures.includes("Print") ? "unlocked" : "locked",
     },
@@ -75,7 +75,7 @@ const ProductNameCreator = () => {
 
   const handleFeaturePress = (featureName: string, status: FeatureStatus) => {
     if (featureName === "Print" && status !== "locked") {
-      router.push("/screen/print/basic" as any);
+      router.push("/screen/jsodj/sd" as any);
     } else if (status === "locked") {
       Alert.alert(
         "Locked",
@@ -83,7 +83,7 @@ const ProductNameCreator = () => {
       );
     } else if (status === "unlocked") {
       const routeMap: { [key: string]: string } = {
-        Strings: "/screen/string/basic",
+        Strings: "/screen/sdsd/sd",
         Variables: "/screen/variables/basic",
         Math: "/screen/math/basic",
         Arrays: "/screen/arrays/basic",

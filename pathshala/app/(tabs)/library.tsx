@@ -8,6 +8,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import ProductNameCreator from "../screen/java/basic";
@@ -20,10 +21,8 @@ const Library = () => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#4facfe" // Android header color
-      />
+      {/* Adjust StatusBar for iOS and Android */}
+      <StatusBar barStyle="light-content" backgroundColor="#4facfe" />
 
       {/* Gradient Header */}
       <LinearGradient
@@ -35,12 +34,12 @@ const Library = () => {
         <Text style={styles.headerTitle}>📚 Library</Text>
       </LinearGradient>
 
+      {/* Scrollable Content */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* ProductNameCreator Card */}
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => handlePress("Product Name Creator")}
@@ -50,7 +49,6 @@ const Library = () => {
           </View>
         </TouchableOpacity>
 
-        {/* MediamPage Card */}
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => handlePress("Mediam Page")}
@@ -70,10 +68,11 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: "#f0f4f8",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // handle Android notch
   },
   header: {
-    paddingTop: 20,
-    paddingBottom: 30,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
     borderBottomLeftRadius: 20,
@@ -95,6 +94,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingTop: 20, // add spacing so cards don’t touch header
   },
   card: {
     backgroundColor: "#fff",

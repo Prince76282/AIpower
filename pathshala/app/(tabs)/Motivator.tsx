@@ -8,11 +8,13 @@ import {
   ScrollView,
   Modal,
   Linking,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 
-// Sample quotes (can be moved to a JSON file)
+// ✅ Define quotes
 const quotes = [
   { text: "Believe in yourself!", icon: "smile-beam" },
   { text: "Stay positive, work hard.", icon: "running" },
@@ -24,7 +26,7 @@ const quotes = [
   { text: "Consistency is key.", icon: "key" },
 ];
 
-// Sample meditation videos
+// ✅ Define meditation videos
 const meditationVideos = [
   {
     title: "2-min Focus Break",
@@ -36,11 +38,14 @@ const meditationVideos = [
   },
 ];
 
+// Define TypeScript type for video
+type Video = { title: string; url: string };
+
 const MotivatorPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(null);
+  const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
 
-  const openVideo = (video) => {
+  const openVideo = (video: Video) => {
     setCurrentVideo(video);
     setModalVisible(true);
   };
@@ -53,8 +58,10 @@ const MotivatorPage = () => {
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF3E0" }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFF3E0" />
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>💡 Daily Motivation</Text>
@@ -83,7 +90,7 @@ const MotivatorPage = () => {
           ))}
         </View>
 
-        {/* Blockchain Certificate Button (stub) */}
+        {/* Certificates */}
         <View style={styles.certificateContainer}>
           <Text style={styles.sectionTitle}>Certificates 🎓</Text>
           <TouchableOpacity
@@ -95,14 +102,16 @@ const MotivatorPage = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Modal for YouTube video */}
+        {/* Modal */}
         <Modal visible={modalVisible} animationType="slide" transparent>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{currentVideo?.title}</Text>
               <TouchableOpacity
                 style={styles.openLinkButton}
-                onPress={() => Linking.openURL(currentVideo?.url)}
+                onPress={() =>
+                  currentVideo && Linking.openURL(currentVideo.url)
+                }
               >
                 <Text style={styles.openLinkText}>Open in YouTube</Text>
               </TouchableOpacity>
@@ -120,6 +129,14 @@ const MotivatorPage = () => {
 export default MotivatorPage;
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: "#FFF3E0",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -129,6 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFE0B2",
     borderBottomWidth: 1,
     borderBottomColor: "#FFCC80",
+    borderRadius: 12,
   },
   headerTitle: {
     fontSize: 28,
@@ -160,10 +178,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
-  meditationContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
+  meditationContainer: { paddingHorizontal: 20, marginTop: 20 },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -178,11 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 10,
   },
-  videoText: {
-    color: "#FFF",
-    fontSize: 16,
-    marginLeft: 10,
-  },
+  videoText: { color: "#FFF", fontSize: 16, marginLeft: 10 },
   certificateContainer: {
     paddingHorizontal: 20,
     marginTop: 20,
@@ -196,11 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: "center",
   },
-  certificateText: {
-    color: "#FFF",
-    fontSize: 16,
-    marginLeft: 10,
-  },
+  certificateText: { color: "#FFF", fontSize: 16, marginLeft: 10 },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -213,28 +220,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
   openLinkButton: {
     backgroundColor: "#FF6F00",
     padding: 12,
     borderRadius: 10,
     marginBottom: 10,
   },
-  openLinkText: {
-    color: "#FFF",
-    fontWeight: "bold",
-  },
-  closeButton: {
-    backgroundColor: "#BDBDBD",
-    padding: 12,
-    borderRadius: 10,
-  },
-  closeText: {
-    color: "#FFF",
-    fontWeight: "bold",
-  },
+  openLinkText: { color: "#FFF", fontWeight: "bold" },
+  closeButton: { backgroundColor: "#BDBDBD", padding: 12, borderRadius: 10 },
+  closeText: { color: "#FFF", fontWeight: "bold" },
 });
