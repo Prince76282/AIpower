@@ -1,9 +1,10 @@
 // src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config/api';
 
-// Use your computer's IP address instead of localhost for mobile testing
-const API_BASE_URL = 'http://192.168.1.11:5000/api'; // Replace with your actual IP
+// API base (handles Android emulator vs iOS simulator vs production)
+const API_BASE_URL = `${API_URL}/api`;
 
 export const AuthContext = createContext();
 
@@ -14,42 +15,42 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing token on app start
   useEffect(() => {
-    checkAuthState();
-  }, []);
+    const runAuthCheck = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('authToken');
+        const storedUser = await AsyncStorage.getItem('userData');
 
-  const checkAuthState = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('authToken');
-      const storedUser = await AsyncStorage.getItem('userData');
-      
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        
-        // Verify token with backend
-        const response = await fetch(`${API_BASE_URL}/auth/me`, {
-          headers: {
-            'Authorization': `Bearer ${storedToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-        } else {
-          // Token is invalid, clear storage
-          await clearAuthData();
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+
+          // Verify token with backend
+          const response = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data.user);
+            await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+          } else {
+            // Token is invalid, clear storage
+            await clearAuthData();
+          }
         }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        await clearAuthData();
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Auth check error:', error);
-      await clearAuthData();
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    runAuthCheck();
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -61,7 +62,12 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        console.error('Failed to parse login response JSON', parseErr);
+      }
 
       if (response.ok) {
         await storeAuthData(data.token, data.user);
@@ -87,7 +93,12 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await response.json();
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        console.error('Failed to parse register response JSON', parseErr);
+      }
 
       if (response.ok) {
         await storeAuthData(data.token, data.user);
@@ -98,9 +109,9 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: data.message };
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
-    }
+        console.error('Registration error:', error.message || error);
+        return { success: false, error: error.message || 'Network error. Please try again.' };
+      }
   };
 
   const loginWithGoogle = async () => {

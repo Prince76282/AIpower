@@ -15,10 +15,12 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useSelector, useDispatch } from "react-redux";
-import { updateProfile } from "../../store/profileSlice";
+import { setProfile } from "../../store/profileSlice";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
+import { API_URL } from "../../config/api";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const THEME = {
   primary: "#3B82F6",
@@ -36,7 +38,17 @@ export default function Profile() {
   const dispatch = useDispatch();
   const { user, logout, isAuthenticated } = useAuth();
 
-  const [localProfile, setLocalProfile] = useState({
+  type LocalProfile = {
+    name: string;
+    age: string;
+    email: string;
+    education: string;
+    reason: string;
+    streak: number;
+    coins: number;
+  };
+
+  const [localProfile, setLocalProfile] = useState<LocalProfile>({
     name: "",
     age: "",
     email: "",
@@ -46,7 +58,7 @@ export default function Profile() {
     coins: 0,
   });
 
-  const [profileImage, setProfileImage] = useState(
+  const [profileImage, setProfileImage] = useState<any>(
     require("../../assets/images/err 1.png")
   );
   const [editMode, setEditMode] = useState(false);
@@ -55,7 +67,9 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/userdata");
+        const id = await AsyncStorage.getItem('userdataId');
+        if (!id) return; // no userdata created yet
+        const res = await axios.get(`${API_URL}/api/userdata/${id}`);
         const data = res.data;
         setLocalProfile({
           name: data.name || "",
@@ -66,8 +80,8 @@ export default function Profile() {
           streak: data.streak || 0,
           coins: data.coins || 0,
         });
-        if (data.profileImageUri)
-          setProfileImage({ uri: data.profileImageUri });
+        if (data.profileImage)
+          setProfileImage({ uri: `${API_URL}${data.profileImage}` });
       } catch (err) {
         console.warn("Profile fetch error:", err);
       }
@@ -97,7 +111,14 @@ export default function Profile() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setProfileImage({ uri });
-      dispatch(updateProfile({ ...localProfile, profileImageUri: uri }));
+      // Persist only known fields into Redux slice
+      dispatch(setProfile({
+        name: localProfile.name,
+        age: localProfile.age,
+        email: localProfile.email,
+        education: localProfile.education,
+        reason: localProfile.reason,
+      } as any));
     }
   };
 
@@ -110,29 +131,33 @@ export default function Profile() {
       formData.append("education", localProfile.education);
       formData.append("reason", localProfile.reason);
 
-      if (
-        profileImage.uri &&
-        profileImage.uri !== require("../../assets/images/err 1.png")
-      ) {
-        formData.append("profileImage", {
-          uri: profileImage.uri,
+      if (profileImage && (profileImage as any).uri && typeof (profileImage as any).uri === 'string' && !(profileImage as any).uri.includes('assets/images/err 1.png')) {
+        (formData as any).append("profileImage", {
+          uri: (profileImage as any).uri,
           name: "profile.jpg",
           type: "image/jpeg",
-        });
+        } as any);
       }
 
-      await axios.put("http://localhost:5000/api/users", formData, {
+      const id = await AsyncStorage.getItem('userdataId');
+      if (!id) {
+        Alert.alert("Error", "No user record to update.");
+        return;
+      }
+
+      await axios.put(`${API_URL}/api/userdata/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      dispatch(
-        updateProfile({
-          ...localProfile,
-          profileImageUri: profileImage.uri ?? null,
-        })
-      );
+      dispatch(setProfile({
+        name: localProfile.name,
+        age: localProfile.age,
+        email: localProfile.email,
+        education: localProfile.education,
+        reason: localProfile.reason,
+      } as any));
       Alert.alert("Saved", "Profile updated successfully.");
     } catch (err) {
       console.error("Error saving profile:", err);
@@ -187,7 +212,7 @@ export default function Profile() {
             <Text style={styles.changeText}>Change Photo</Text>
           </TouchableOpacity>
 
-          {["name", "age", "email", "education", "reason"].map((field) => (
+          {(["name", "age", "email", "education", "reason"] as const).map((field) => (
             <View key={field} style={styles.row}>
               <Text style={styles.label}>
                 {field.charAt(0).toUpperCase() + field.slice(1)}:

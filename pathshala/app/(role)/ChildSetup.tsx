@@ -13,6 +13,8 @@ import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { setProfile } from "../../store/profileSlice"; // adjust path as needed
+import { API_URL } from "../../config/api";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ChildSetup() {
   const router = useRouter();
@@ -23,7 +25,7 @@ export default function ChildSetup() {
   const [email, setEmail] = useState("");
   const [education, setEducation] = useState("");
   const [reason, setReason] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const isFormValid =
     name.trim() &&
@@ -68,18 +70,24 @@ export default function ChildSetup() {
       formData.append("reason", reason);
 
       if (profileImage) {
-        formData.append("profileImage", {
+        // React Native FormData file shape; cast to any to satisfy TS in RN
+        (formData as any).append("profileImage", {
           uri: profileImage,
           name: "profile.jpg",
           type: "image/jpeg",
-        });
+        } as any);
       }
 
-      await axios.post("http://localhost:5000/api/userdata", formData, {
+      const { data } = await axios.post(`${API_URL}/api/userdata`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      // Persist created user-data id for later profile fetch/update
+      const createdId = data?._id || data?.id;
+      if (createdId) {
+        await AsyncStorage.setItem('userdataId', String(createdId));
+      }
 
       console.log("User details saved successfully");
     } catch (error) {
