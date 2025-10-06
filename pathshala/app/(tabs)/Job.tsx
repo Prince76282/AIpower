@@ -30,7 +30,7 @@ interface ATSAnalysis {
 }
 
 // ----------------- Grok AI Setup -----------------
-const GROK_API_KEY = "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"; // 🔑 Replace with your Grok AI API key
+// const GROK_API_KEY = "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"; // 🔑 Replace with your Grok AI API key
 
 const grokAI = new OpenAI({
   baseURL: "https://api.grok.ai/v1",

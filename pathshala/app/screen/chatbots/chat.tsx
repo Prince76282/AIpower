@@ -16,8 +16,8 @@ export default function Chatbot() {
   const [userInput, setUserInput] = useState("");
   const scrollViewRef = useRef();
 
-  const GROQ_API_KEY =
-    "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";
+  // const GROQ_API_KEY =
+  //   "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";
 
   const handleSend = async () => {
     if (!userInput.trim()) return;

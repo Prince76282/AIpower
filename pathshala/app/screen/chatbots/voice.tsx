@@ -20,8 +20,8 @@ export default function SpeechChatbot() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<ScrollView>(null);
 
-  const GROQ_API_KEY =
-    "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";
+  // const GROQ_API_KEY =
+  //   "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";
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
