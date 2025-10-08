@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   View,
@@ -21,7 +20,7 @@ interface Feature {
   status: FeatureStatus;
 }
 
-const ProductNameCreator = () => {
+const IntermediateLearningPath = () => {
   const router = useRouter();
   const [completedFeatures, setCompletedFeatures] = useState<string[]>([]);
 
@@ -33,7 +32,7 @@ const ProductNameCreator = () => {
 
   const loadCompletedFeatures = async () => {
     try {
-      const savedCompleted = await AsyncStorage.getItem("completedFeatures");
+      const savedCompleted = await AsyncStorage.getItem("completedFeaturesIntermediate");
       setCompletedFeatures(savedCompleted ? JSON.parse(savedCompleted) : []);
     } catch (error) {
       console.error("Error loading completed features:", error);
@@ -43,53 +42,51 @@ const ProductNameCreator = () => {
 
   const features: Feature[] = [
     {
-      name: "Print",
-      description: "Learn basic print statements",
-      status: completedFeatures.includes("Print") ? "completed" : "unlocked",
+      name: "OOP Basics",
+      description: "Object-Oriented Programming fundamentals",
+      status: completedFeatures.includes("OOP Basics") ? "completed" : "unlocked",
     },
     {
-      name: "Strings",
-      description: "Advanced string manipulation",
-      status: completedFeatures.includes("Print") ? "unlocked" : "locked",
+      name: "Classes",
+      description: "Class creation and inheritance",
+      status: completedFeatures.includes("OOP Basics") ? "unlocked" : "locked",
     },
     {
-      name: "Variables",
-      description: "Dynamic variable management",
-      status: completedFeatures.includes("Strings") ? "unlocked" : "locked",
+      name: "Interfaces",
+      description: "Interface implementation",
+      status: completedFeatures.includes("Classes") ? "unlocked" : "locked",
     },
     {
-      name: "Math",
-      description: "Mathematical operations",
-      status: completedFeatures.includes("Variables") ? "unlocked" : "locked",
+      name: "Collections",
+      description: "Java Collections Framework",
+      status: completedFeatures.includes("Interfaces") ? "unlocked" : "locked",
     },
     {
-      name: "Arrays",
-      description: "Array data structures",
-      status: completedFeatures.includes("Math") ? "unlocked" : "locked",
+      name: "Exception",
+      description: "Exception handling",
+      status: completedFeatures.includes("Collections") ? "unlocked" : "locked",
     },
     {
-      name: "Functions",
-      description: "Function creation and usage",
-      status: completedFeatures.includes("Arrays") ? "unlocked" : "locked",
+      name: "File I/O",
+      description: "File operations and streams",
+      status: completedFeatures.includes("Exception") ? "unlocked" : "locked",
     },
-    
   ];
 
   const handleFeaturePress = (featureName: string, status: FeatureStatus) => {
-    if (featureName === "Print" && status !== "locked") {
-      router.push("/screen/print/basic" as any);
-    } else if (status === "locked") {
+    if (status === "locked") {
       Alert.alert(
         "Locked",
         `${featureName} is locked. Complete the previous lessons to unlock this feature.`
       );
     } else if (status === "unlocked") {
       const routeMap: { [key: string]: string } = {
-        Strings: "/screen/string/basic",
-        Variables: "/screen/variables/basic",
-        Math: "/screen/math/basic",
-        Arrays: "/screen/arrays/basic",
-        Functions: "/screen/functions/basic",
+        "OOP Basics": "/screen/oop/intermediate",
+        Classes: "/screen/classes/intermediate",
+        Interfaces: "/screen/interfaces/intermediate",
+        Collections: "/screen/collections/intermediate",
+        Exception: "/screen/exception/intermediate",
+        "File I/O": "/screen/fileio/intermediate",
       };
       const route = routeMap[featureName];
       route
@@ -106,20 +103,18 @@ const ProductNameCreator = () => {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <FontAwesome name="info-circle" size={24} color="#6366f1" />
-          <Text style={styles.sectionTitle}>Java Learning Path</Text>
+          <FontAwesome name="code" size={24} color="#6366f1" />
+          <Text style={styles.sectionTitle}>Intermediate Java Path</Text>
         </View>
 
         <View style={styles.badgeGrid}>
           {features.map((feature, index) => {
-            // ✅ Set ring + icon color based on status
             const colors = {
-              completed: { ring: "#FACC15", icon: "#FACC15" }, // gold star
-              unlocked: { ring: "#FB923C", icon: "#FB923C" }, // orange star
-              locked: { ring: "#E5E7EB", icon: "#9CA3AF" },   // gray lock
+              completed: { ring: "#FACC15", icon: "#FACC15" },
+              unlocked: { ring: "#FB923C", icon: "#FB923C" },
+              locked: { ring: "#E5E7EB", icon: "#9CA3AF" },
             }[feature.status];
 
-            // ✅ Lock icon if locked, star otherwise
             const iconName = feature.status === "locked" ? "lock" : "star";
 
             return (
@@ -209,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductNameCreator;
+export default IntermediateLearningPath;

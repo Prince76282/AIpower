@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -11,6 +12,7 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LessonScreen from "./LessonScreen";
 
 type FeatureStatus = "completed" | "unlocked" | "locked";
 
@@ -42,12 +44,12 @@ const ProductNameCreator = () => {
 
   const features: Feature[] = [
     {
-      name: "funce",
+      name: "Print",
       description: "Learn basic print statements",
-      status: completedFeatures.includes("Print") ? "unlocked" : "locked",
+      status: completedFeatures.includes("Print") ? "completed" : "unlocked",
     },
     {
-      name: "hsddjsd",
+      name: "Strings",
       description: "Advanced string manipulation",
       status: completedFeatures.includes("Print") ? "unlocked" : "locked",
     },
@@ -55,11 +57,6 @@ const ProductNameCreator = () => {
       name: "Variables",
       description: "Dynamic variable management",
       status: completedFeatures.includes("Strings") ? "unlocked" : "locked",
-    },
-    {
-      name: "Math",
-      description: "Mathematical operations",
-      status: completedFeatures.includes("Variables") ? "unlocked" : "locked",
     },
     {
       name: "Arrays",
@@ -71,32 +68,25 @@ const ProductNameCreator = () => {
       description: "Function creation and usage",
       status: completedFeatures.includes("Arrays") ? "unlocked" : "locked",
     },
+    
   ];
 
+  const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
+
   const handleFeaturePress = (featureName: string, status: FeatureStatus) => {
-    if (featureName === "Print" && status !== "locked") {
-      router.push("/screen/jsodj/sd" as any);
-    } else if (status === "locked") {
+    if (status === "locked") {
       Alert.alert(
         "Locked",
         `${featureName} is locked. Complete the previous lessons to unlock this feature.`
       );
-    } else if (status === "unlocked") {
-      const routeMap: { [key: string]: string } = {
-        Strings: "/screen/sdsd/sd",
-        Variables: "/screen/variables/basic",
-        Math: "/screen/math/basic",
-        Arrays: "/screen/arrays/basic",
-        Functions: "/screen/functions/basic",
-      };
-      const route = routeMap[featureName];
-      route
-        ? router.push(route as any)
-        : Alert.alert("Coming Soon", `${featureName} lesson is coming soon!`);
-    } else if (status === "completed") {
-      Alert.alert("Completed", `${featureName} has been completed! Great job!`);
+    } else {
+      setSelectedLesson(featureName);
     }
   };
+
+  if (selectedLesson) {
+    return <LessonScreen lessonName={selectedLesson} />;
+  }
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -110,14 +100,14 @@ const ProductNameCreator = () => {
 
         <View style={styles.badgeGrid}>
           {features.map((feature, index) => {
-            // ✅ Set ring + icon color based on status
+            
             const colors = {
-              completed: { ring: "#FACC15", icon: "#FACC15" }, // gold star
-              unlocked: { ring: "#FB923C", icon: "#FB923C" }, // orange star
-              locked: { ring: "#E5E7EB", icon: "#9CA3AF" },   // gray lock
+              completed: { ring: "#FACC15", icon: "#FACC15" }, 
+              unlocked: { ring: "#FB923C", icon: "#FB923C" }, 
+              locked: { ring: "#E5E7EB", icon: "#9CA3AF" },   
             }[feature.status];
 
-            // ✅ Lock icon if locked, star otherwise
+           
             const iconName = feature.status === "locked" ? "lock" : "star";
 
             return (
